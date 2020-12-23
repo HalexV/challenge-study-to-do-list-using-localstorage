@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-do list</title>
+
+    <style>
+      h1 {
+        text-align: center;
+      }
+
+      div {
+        width: fit-content;
+        margin: 0 auto;
+      }
+
+      ul {
+        width: fit-content;
+        margin: 20px auto;
+      }
+
+      li {
+        cursor: default;
+        margin: 5px 0;
+      }
+
+      li button {
+        float: right;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>To-do List</h1>
+    <div>
+      <input id="todo-input" type="text" placeholder="Write here" />
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul></ul>
+
+    <script>
+      let arrTasks = [];
+
+      onload = () => {
+        arrTasks = JSON.parse(localStorage.getItem("tasks"));
+
+        if (arrTasks == null) {
+          arrTasks = [];
+        } else {
+          const ul = document.getElementsByTagName("ul")[0];
+          let newLi = "";
+
+          for (let task of arrTasks) {
+            newLi = document.createElement("li");
+            newLi.textContent = task;
+            newLi.addEventListener("mouseenter", addDeleteButton);
+            newLi.addEventListener("mouseleave", removeDeleteButton);
+
+            ul.appendChild(newLi);
+          }
+        }
+      };
+
+      function addTask() {
+        const input = document.getElementById("todo-input");
+        const ul = document.getElementsByTagName("ul")[0];
+
+        const newLi = document.createElement("li");
+
+        if (input.value) {
+          newLi.textContent = input.value;
+
+          arrTasks.push(input.value);
+          localStorage.setItem("tasks", JSON.stringify(arrTasks));
+
+          newLi.addEventListener("mouseenter", addDeleteButton);
+          newLi.addEventListener("mouseleave", removeDeleteButton);
+
+          ul.appendChild(newLi);
+          input.value = "";
+        }
+      }
+
+      function addDeleteButton(e) {
+        const li = e.target;
+
+        const hasButton = li.getElementsByTagName("button")[0];
+
+        if (!hasButton) {
+          const newButton = document.createElement("button");
+
+          newButton.addEventListener("click", deleteTask);
+
+          newButton.textContent = "X";
+
+          li.appendChild(newButton);
+        }
+      }
+
+      function removeDeleteButton(e) {
+        const li = e.target;
+        const button = li.getElementsByTagName("button")[0];
+
+        li.removeChild(button);
+      }
+
+      function deleteTask(e) {
+        const button = e.target;
+        const li = button.parentNode;
+
+        button.remove();
+
+        const index = arrTasks.indexOf(li.textContent);
+        arrTasks.splice(index, 1);
+
+        if (arrTasks.length === 0) {
+          localStorage.clear();
+        } else {
+          localStorage.setItem("tasks", JSON.stringify(arrTasks));
+        }
+
+        li.remove();
+      }
+    </script>
+  </body>
+</html>
